@@ -92,7 +92,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (savedUser && savedAuthState) {
       setUserState(savedUser);
       setIsAuthenticatedState(true);
-      console.log('[AuthContext] Restored user data from localStorage:', savedUser.email);
       // Auth state restored - useUserQuery will validate and refresh token if needed
     }
   }, []);
@@ -101,7 +100,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     const handleTokenRefresh = (event: CustomEvent) => {
       const { accessToken: newToken } = event.detail;
-      console.log('[AuthContext] Token refreshed by interceptor, updating context');
       setAccessToken(newToken);
     };
 
@@ -116,7 +114,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     if (typeof window !== 'undefined') {
       window.__accessToken = accessToken;
-      console.log('[AuthContext] Synced window.__accessToken:', !!accessToken);
     }
   }, [accessToken]);
 
@@ -124,7 +121,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     if (!isLoading && !isAuthInitialized) {
       setIsAuthInitialized(true);
-      console.log('[AuthContext] Auth initialization complete');
     }
   }, [isLoading, isAuthInitialized]);
 
@@ -135,7 +131,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // Decode JWT to get expiration time
     const decoded = decodeJWT(accessToken);
     if (!decoded || !decoded.exp) {
-      console.warn('[AuthContext] Cannot decode JWT or missing exp claim');
       return;
     }
 
@@ -147,11 +142,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const refreshBuffer = 60 * 1000; // 1 minute
     const refreshIn = Math.max(0, timeUntilExpiry - refreshBuffer);
 
-    console.log('[AuthContext] Token expires in:', Math.round(timeUntilExpiry / 1000), 'seconds');
-    console.log('[AuthContext] Will refresh in:', Math.round(refreshIn / 1000), 'seconds');
-
     const refreshTimeout = setTimeout(async () => {
-      console.log('[AuthContext] Auto-refreshing token before expiration...');
       try {
         const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:5000';
         const response = await fetch(`${backendUrl}/auth/refresh`, {
@@ -166,21 +157,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           if (typeof window !== 'undefined') {
             window.__accessToken = newToken;
           }
-          console.log('[AuthContext] ✅ Token auto-refreshed successfully');
         } else {
-          console.warn('[AuthContext] ⚠️ Auto-refresh failed, user may need to re-login');
-          // Optionally logout user
           setIsAuthenticated(false);
           setAccessToken(null);
           setUser(null);
         }
       } catch (error) {
-        console.error('[AuthContext] ❌ Auto-refresh error:', error);
+        // Silently handle refresh error
       }
     }, refreshIn);
 
     return () => {
-      console.log('[AuthContext] Clearing auto token refresh timeout');
       clearTimeout(refreshTimeout);
     };
   }, [isAuthenticated, accessToken]);
@@ -194,24 +181,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const FIVE_MIN = 5 * 60 * 1000;
 
       if (now - lastTs < FIVE_MIN) {
-        console.log('[AuthContext] 🔕 Recent sync already triggered for this user, skipping (within 5min)');
         setHasSyncedOnLogin(true); // treat as already triggered for this session
         return;
       }
 
       const syncEmails = async () => {
         try {
-          console.log('[AuthContext] 🔔 Triggering backend Gmail sync for user:', user.id);
           // Use the app axios client so cookies and interceptor are used
-          const res = await api.post('/sync/gmail', { limit: 100, forceResync: true });
-          console.log('[AuthContext] ✅ Gmail sync response:', res.data);
+          await api.post('/sync/gmail', { limit: 100, forceResync: true });
           // Mark as synced so we don't trigger again in this session
           setHasSyncedOnLogin(true);
           if (typeof window !== 'undefined') {
             localStorage.setItem(key, String(Date.now()));
           }
         } catch (err: any) {
-          console.warn('[AuthContext] ⚠️ Gmail sync request failed:', err?.response?.status, err?.response?.data || err.message);
+          // Sync failed silently
         }
       };
 

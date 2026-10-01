@@ -69,20 +69,16 @@ export class AutoIndexService {
   ): Promise<void> {
     // Prevent duplicate indexing
     if (this.isIndexing) {
-      console.log("[AutoIndex] Already indexing, skip");
       return;
     }
 
     // Check if already indexed
     if (this.hasBeenIndexed(userId)) {
-      console.log("[AutoIndex] User already indexed, skip");
       return;
     }
 
     try {
       this.isIndexing = true;
-      console.log(`[AutoIndex] Starting background indexing for ${userId}...`);
-
       const apiURL = process.env.NEXT_PUBLIC_BACKEND_API_URL || "http://localhost:5000";
       
       const response = await fetch(`${apiURL}/search/index`, {
@@ -101,8 +97,6 @@ export class AutoIndexService {
       const data = await response.json();
       const indexed = data.data?.indexed || data.indexed || 0;
 
-      console.log(`[AutoIndex] ✅ Successfully indexed ${indexed} emails`);
-      
       // Mark as indexed
       this.markAsIndexed(userId, indexed);
 
@@ -111,9 +105,7 @@ export class AutoIndexService {
         this.showNotification(indexed);
       }
     } catch (error) {
-      console.error("[AutoIndex] Failed to auto-index:", error);
       // Don't throw - indexing failure shouldn't break user experience
-      // User can manually index later if needed
     } finally {
       this.isIndexing = false;
     }
@@ -134,9 +126,6 @@ export class AutoIndexService {
         });
       }
     }
-
-    // Also console log for developers
-    console.log(`[AutoIndex] 🎉 Semantic search ready! ${count} emails indexed.`);
   }
 
   /**

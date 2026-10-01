@@ -53,7 +53,6 @@ export const useSearch = ({
 
   // Update parent loading state
   useEffect(() => {
-    console.log('[useSearch] Loading state changed:', isSearching);
     onLoadingChange(isSearching);
   }, [isSearching, onLoadingChange]);
 
@@ -106,22 +105,17 @@ export const useSearch = ({
 
   // Auto-search when URL has query param (only if different from last search OR mode changed)
   useEffect(() => {
-    console.log('[useSearch] Effect triggered:', { isAuthInitialized, isAuthenticated, searchQuery, searchMode, lastSearchQuery, lastSearchMode });
-
     if (!searchQuery) {
-      console.log('[useSearch] Skipping: no query');
       setIsSearching(false);
       return;
     }
 
     if (!isAuthInitialized) {
-      console.log('[useSearch] Skipping: auth not initialized yet');
       // Don't set isSearching to false here - waiting for auth
       return;
     }
 
     if (!isAuthenticated) {
-      console.log('[useSearch] Skipping: not authenticated');
       setIsSearching(false);
       setError('Please login to search');
       return;
@@ -134,7 +128,6 @@ export const useSearch = ({
 
     // Skip if same query AND same mode (prevent duplicate search)
     if (searchQuery === lastSearchQuery && effectiveMode === lastSearchMode) {
-      console.log('[useSearch] Skipping: same query and mode');
       setIsSearching(false);
       return;
     }
@@ -145,13 +138,11 @@ export const useSearch = ({
 
     const performSearch = async () => {
       try {
-        console.log('[useSearch] Starting search:', { searchQuery, effectiveMode });
         setIsSearching(true);
         setError(null);
 
         const token = accessToken || (typeof window !== "undefined" ? window.__accessToken : null);
         if (!token) {
-          console.log('[useSearch] No token found');
           setError('Authentication required');
           setIsSearching(false);
           return;
@@ -164,7 +155,6 @@ export const useSearch = ({
         // Choose search endpoint based on mode
         if (effectiveMode === "semantic") {
           // Semantic Search
-          console.log('[useSearch] Calling semantic search API (from suggestion or toggle)');
           response = await fetch(`${apiURL}/search/semantic`, {
             method: "POST",
             headers: {
@@ -179,8 +169,6 @@ export const useSearch = ({
           });
         } else {
           // Fuzzy Search (default)
-          console.log('[useSearch] Calling fuzzy search API');
-          
           const fuzzyUrl = `${apiURL}/search/fuzzy?q=${encodeURIComponent(searchQuery)}&limit=50`;
           
           response = await fetch(fuzzyUrl, {
@@ -194,7 +182,6 @@ export const useSearch = ({
         if (!response.ok) throw new Error("Search failed");
 
         const data = await response.json();
-        console.log('[useSearch] API response:', data);
 
         // Handle different response formats
         let results = [];
@@ -203,8 +190,6 @@ export const useSearch = ({
         } else {
           results = data?.data?.hits || [];
         }
-
-        console.log('[useSearch] Results count:', results.length);
 
         // Transform search results to Mail format
         const transformedResults: Mail[] = results.map((hit: any) => ({
@@ -221,14 +206,11 @@ export const useSearch = ({
           similarityScore: hit.similarityScore,
         }));
 
-        console.log('[useSearch] Calling onMailsChange with results:', transformedResults.length);
         onMailsChange?.(transformedResults);
       } catch (err: any) {
-        console.error('[useSearch] Search error:', err);
         setError("Search failed. Please try again.");
         onMailsChange?.([]);
       } finally {
-        console.log('[useSearch] Setting isSearching to false');
         setIsSearching(false);
       }
     };

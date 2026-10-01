@@ -4,10 +4,10 @@ A full-stack single-page application implementing secure authentication (Email+P
 
 ## 🚀 Live Demo
 
-**Deployed URL:** [Add your deployment URL here]
+**Deployed URL:** [https://project-email-customize-gamma.vercel.app/](https://project-email-customize-gamma.vercel.app/)
 
-- **Frontend:** Deployed on Vercel/Netlify
-- **Backend:** Deployed on Render/Railway/Heroku
+- **Frontend:** Deployed on [Vercel](https://project-email-customize-gamma.vercel.app/)
+- **Backend:** Deployed on [Render](https://project-email-customize-xlq7.onrender.com)
 
 ## 📋 Table of Contents
 
@@ -213,7 +213,7 @@ The application implements a **fully dynamic Kanban system** allowing users to *
 ### 1. Clone Repository
 
 ```bash
-git clone https://github.com/AnhKhoaDT/project-email-customize.git
+git clone https://github.com/nmnghia255/project-email-customize.git
 cd project-email-customize
 ```
 
@@ -1697,8 +1697,8 @@ Educational project for React authentication assignment.
 
 ---
 
-**Repository:** https://github.com/AnhKhoaDT/project-email-customize  
-**Deployed App:** [TODO: Add your URL here]
+**Repository:** https://github.com/nmnghia255/project-email-customize  
+**Deployed App:** https://project-email-customize-gamma.vercel.app/
 
 ## 🎯 Project Highlights
 

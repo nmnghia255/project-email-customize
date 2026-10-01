@@ -31,29 +31,19 @@ export const useUserQuery = () => {
 
   useEffect(() => {
     const initializeAuth = async () => {
-      console.log('[useUserQuery] 🔄 Initialization - Has in-memory accessToken:', !!accessToken, 'isLoading:', isLoading);
-      
       if (accessToken) {
-        // Có accessToken in-memory → fetch user profile
-        console.log('[useUserQuery] Has accessToken in-memory, fetching user profile...');
-        
         // Ensure window.__accessToken is also set for non-axios requests
         setGlobalAccessToken(accessToken);
         
         try {
           const userProfile = await getCurrentUser();
-          
           setUser(userProfile);
           setIsAuthenticated(true);
-          console.log('[useUserQuery] ✅ User authenticated:', userProfile.email);
           
           // Auto-index emails for semantic search (background, non-blocking)
-          AutoIndexService.autoIndex(userProfile.id, accessToken, 200).catch(err => {
-            console.warn('[useUserQuery] Auto-index failed (non-critical):', err);
-          });
+          AutoIndexService.autoIndex(userProfile.id, accessToken, 200).catch(() => {});
           
         } catch (fetchError: any) {
-          console.error('[useUserQuery] ❌ Failed to fetch user:', fetchError?.response?.status, fetchError?.message);
           // Access token might be expired, clear it and try refresh
           setAccessToken(null);
           setGlobalAccessToken(null);
@@ -65,8 +55,6 @@ export const useUserQuery = () => {
       
       // No accessToken → try refresh from HttpOnly cookie
       if (!accessToken) {
-        console.log('[useUserQuery] No accessToken, attempting to refresh from HttpOnly cookie...');
-        
         try {
           const backendUrl = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:5000';
           const refreshResponse = await fetch(`${backendUrl}/auth/refresh`, {
@@ -75,35 +63,26 @@ export const useUserQuery = () => {
             headers: { 'Content-Type': 'application/json' }
           });
           
-          console.log('[useUserQuery] Refresh response:', refreshResponse.status);
-          
           if (refreshResponse.ok) {
             const { accessToken: newAccessToken } = await refreshResponse.json();
             
             // Store new access token in-memory
             setAccessToken(newAccessToken);  // AuthContext
             setGlobalAccessToken(newAccessToken);  // window.__accessToken for axios
-          
-            console.log('[useUserQuery] ✅ Token refreshed from HttpOnly cookie');
             
             // Fetch user profile with new token
             const userProfile = await getCurrentUser();
             setUser(userProfile);
             setIsAuthenticated(true);
-            console.log('[useUserQuery] ✅ User authenticated:', userProfile.email);
             
             // Auto-index emails for semantic search (background, non-blocking)
-            AutoIndexService.autoIndex(userProfile.id, newAccessToken, 200).catch(err => {
-              console.warn('[useUserQuery] Auto-index failed (non-critical):', err);
-            });
+            AutoIndexService.autoIndex(userProfile.id, newAccessToken, 200).catch(() => {});
           } else {
-            console.log('[useUserQuery] ❌ No valid refresh token in HttpOnly cookie');
             clearTokens();
             setUser(null);
             setIsAuthenticated(false);
           }
         } catch (error) {
-          console.error('[useUserQuery] ❌ Refresh error:', error);
           clearTokens();
           setUser(null);
           setIsAuthenticated(false);
