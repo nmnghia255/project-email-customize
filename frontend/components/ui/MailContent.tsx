@@ -17,7 +17,7 @@ import { useToast } from "@/contexts/toast-context";
 
 // --- CẤU HÌNH API ---
 // Thay thế đường dẫn này bằng URL backend thực tế của bạn
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 interface MailContentProps {
   mail?: EmailData | null;
