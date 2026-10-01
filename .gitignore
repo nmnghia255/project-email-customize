@@ -1,0 +1,15 @@
+# Environment files
+.env
+.env*.local
+.env.production
+.env.development
+# Python virtual env
+.venv/
+__pycache__/
+# Dependencies & build outputs
+node_modules/
+dist/
+.next/
+# OS files
+.DS_Store
+Thumbs.db

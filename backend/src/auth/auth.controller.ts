@@ -24,7 +24,7 @@ export class AuthController {
     const cookieOptions = {
       httpOnly: true,        // Prevent XSS access
       secure: process.env.NODE_ENV === 'production',  // HTTPS only in production
-      sameSite: 'lax' as const,  // CSRF protection
+      sameSite: process.env.NODE_ENV === 'production' ? ('none' as const) : ('lax' as const),  // Support cross-domain in prod
       maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days (persistent cookie)
       path: '/',             // Available across entire domain
     };
@@ -55,7 +55,7 @@ export class AuthController {
     const cookieOptions = {
       httpOnly: true,        // Prevent XSS access
       secure: process.env.NODE_ENV === 'production',  // HTTPS only in production
-      sameSite: 'lax' as const,  // CSRF protection
+      sameSite: process.env.NODE_ENV === 'production' ? ('none' as const) : ('lax' as const),  // Support cross-domain in prod
       maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days (persistent cookie)
       path: '/',             // Available across entire domain
     };
@@ -173,7 +173,7 @@ export class AuthController {
     const cookieOptions = {
       httpOnly: true,        // Prevent XSS access
       secure: process.env.NODE_ENV === 'production',  // HTTPS only in production
-      sameSite: 'lax' as const,  // CSRF protection
+      sameSite: process.env.NODE_ENV === 'production' ? ('none' as const) : ('lax' as const),  // Support cross-domain in prod
       maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days (persistent cookie)
       path: '/',             // Available across entire domain
     };
@@ -293,7 +293,7 @@ export class AuthController {
       res.clearCookie('refreshToken', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax' as const,
+        sameSite: process.env.NODE_ENV === 'production' ? ('none' as const) : ('lax' as const),
         path: '/',
       });
     }
