@@ -5,11 +5,11 @@ import { Mail, Shield, Zap, Users, ArrowRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ThemeSwitcher from "@/components/theme-switcher";
 import LogoutButton from "@/components/logout-button";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/auth-context";
 
-export default function Welcome() {
+function WelcomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, isAuthenticated } = useAuth();
@@ -224,5 +224,13 @@ export default function Welcome() {
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function Welcome() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <WelcomeContent />
+    </Suspense>
   );
 }

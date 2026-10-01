@@ -34,7 +34,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <GoogleOAuthProvider clientId={googleClientId}>
+        <GoogleOAuthProvider clientId={googleClientId || "dummy-client-id.apps.googleusercontent.com"}>
           <ThemeProviders attribute="class" defaultTheme="system" enableSystem>
             <AuthProvider>
               <ToastProvider>
